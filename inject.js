@@ -29,10 +29,10 @@
         ret = orig.apply(this, arguments);
       }
       if (typeof type == 'function') {
-        ret = type.apply(this, [ret].concat(arguments));
+        ret = type.apply(this, [ret].concat(Array.prototype.slice.call(arguments)));
       } else
       if (!type || type == 'after') {
-        ret = hook.apply(this, [ret].concat(arguments));
+        ret = hook.apply(this, [ret].concat(Array.prototype.slice.call(arguments)));
       }
       return ret;
     };
@@ -51,6 +51,18 @@
       customStickers = event.data;
     }
   }, false);
+
+  Emoji.ttClick = inject(Emoji.ttClick, function(ret, optId, obj, needHide, needShow, ev) {
+    var opts = Emoji.opts[optId];
+    if (!opts) {
+      return ret;
+    }
+
+    var topShift = getSize(opts.tt)[1] + 11;
+    var toParams = { marginTop: Emoji.shown ? -topShift : -(topShift+10) };
+    setTimeout(setStyle.pbind(opts.tt, toParams), 10);
+    return ret;
+  });
 
   Emoji.getTabsCode = inject(Emoji.getTabsCode, function(args, func) {
     var extra = [];

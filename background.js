@@ -14,6 +14,9 @@ chrome.runtime.onInstalled.addListener(function(details) {
 var albumsId = {};
 var photosId = {};
 chrome.webRequest.onCompleted.addListener(function(details) {
+  chrome.tabs.insertCSS(details.tabId, {
+    code: '.emoji_tabs{height:auto !important;} .emoji_tt_wrap{height:auto !important;} .emoji_pointer{bottom:-8px !important;}'
+  });
   chrome.tabs.get(details.tabId, function(tab) {
     var https = (tab.url.indexOf('https:') == 0) ? 1 : 0;
     api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228, https: ' + https + ' }), photos: API.photos.getAll({ owner_id: -69762228, count: 200, https: ' + https + ' }) };' }, function(res) {
@@ -41,9 +44,6 @@ chrome.webRequest.onCompleted.addListener(function(details) {
           opts: opts
         }) + ", '*');};document.body.appendChild(e);"
       });
-      chrome.tabs.insertCSS(details.tabId, {
-        file: 'inject.css'
-      })
     });
   });
 },
