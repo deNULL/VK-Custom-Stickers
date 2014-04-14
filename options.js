@@ -11,16 +11,60 @@ function checkAccessToken() {
       ge('link_user').href = 'http://vk.com/id' + opts.userID;
       ge('link_user').innerHTML = opts.firstName + ' ' + opts.lastName;
     });
-    api('photos.getAlbums', { owner_id: -69762228 }, function(data) {
-      var albums = data.response.items;
+    api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228 }), photos: API.photos.getAll({ owner_id: -69762228, count: 200 }) };' }, function(data) {
+      var albums = data.response.albums.items.reverse();
+      var photos = data.response.photos.items.reverse();
       var html = [];
       var defs = {};
+      var photosByAlbum = {};
+      var photosById = {};
+
       for (var i = 0; i < albums.length; i++) {
         defs['album' +  + albums[i].id] = false;
+        photosByAlbum[albums[i].id] = [];
       }
+      for (var i = 0; i < photos.length; i++) {
+        photosByAlbum[photos[i].album_id].push(photos[i]);
+        photosById[photos[i].id] = photos[i];
+      }
+
       loadOptions(defs);
+
       for (var i = 0; i < albums.length; i++) {
-        html.push('<div style="margin: 12px" id="check_album' + albums[i].id + '" class="checkbox' + (opts['album' + albums[i].id] ? ' on' : '') + '"><div></div><span>' + albums[i].title + '</span></div>');
+        if (!albums[i].size || !albums[i].thumb_id) {
+          continue;
+        }
+
+        var m;
+        var title = albums[i].title;
+        var author = '';
+        if (m = albums[i].description.match(/^Автор: (.+)$/im)) {
+          author = m[1];
+        }
+
+        var thumbs = [];
+        for (var j = 0; j < photosByAlbum[albums[i].id].length; j++) {
+          var thumb = photosByAlbum[albums[i].id][j];
+          if (thumb.id == albums[i].thumb_id) {
+            continue;
+          }
+          thumbs.push('<div class="fl_l im_sticker_bl_simg"><img src="' + thumb.photo_75 + '" width="42" height="42"></div>');
+          if (thumbs.length >= 6) {
+            break;
+          }
+        }
+
+        html.push(
+'<a class="fl_l im_sticker_bl" id="check_album' + albums[i].id + '_wrap">\
+  <div class="fl_l im_sticker_bl_mimg"><img src="' + photosById[albums[i].thumb_id].photo_130 + '" width="96" height="96" class="im_sticker_bl_bimg"></div>\
+  <div class="fl_l im_sticker_bl_imgs">' + thumbs.join('') + '</div>\
+  <div class="im_sticker_bl_info clear">\
+    <div class="fl_r im_sticker_bl_act"><div class="im_sticker_act fl_r" id="check_album' + albums[i].id + '">Добавить</div></div>\
+    <div class="im_sticker_bl_name">' + title + '</div>\
+    <div class="im_sticker_bl_desc">' + author + '</div>\
+  </div>\
+</a>');
+        //html.push('<div style="margin: 12px" id="check_album' + albums[i].id + '" class="checkbox' + (opts['album' + albums[i].id] ? ' on' : '') + '"><div></div><span>' + albums[i].title + '</span></div>');
       }
       ge('list_albums').innerHTML = html.join('');
       for (var i = 0; i < albums.length; i++) {
@@ -98,14 +142,17 @@ ge('link_logout').onclick = function() {
 }
 
 function check(id, opt) {
+  var wrap = ge('check_' + id + '_wrap');
   var ch = ge('check_' + id);
   if (opts[opt]) {
-    ch.classList.add('on');
+    ch.classList.add('im_sticker_act_blue');
   }
-  ch.onclick = function(e) {
-    this.classList.toggle('on');
+  ch.innerHTML = ch.classList.contains('im_sticker_act_blue') ? 'Включен' : 'Скрыт';
+  wrap.onclick = function(e) {
+    ch.classList.toggle('im_sticker_act_blue');
+    ch.innerHTML = ch.classList.contains('im_sticker_act_blue') ? 'Включен' : 'Скрыт';
     var update = {};
-    update[opt] = this.classList.contains('on');
+    update[opt] = ch.classList.contains('im_sticker_act_blue');
     saveOptions(update);
   }
 }

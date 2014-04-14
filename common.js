@@ -11,7 +11,13 @@ function geByClass1(c, n) {
 var opts = {};
 function loadOptions(defaults) {
   for (var key in defaults) {
-    opts[key] = localStorage[key] ? JSON.parse(localStorage[key]) : defaults[key];
+    opts[key] = defaults[key];
+  }
+  for (var key in localStorage) {
+    try {
+      opts[key] = JSON.parse(localStorage[key]);
+    } catch (e) {
+    }
   }
 }
 function saveOptions(update, silent) {

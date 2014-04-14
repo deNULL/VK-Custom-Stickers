@@ -28,6 +28,10 @@
     a:hover, a:active {
       text-decoration: underline;
     }
+    .clear {
+      float: none;
+      clear: both;
+    }
     .clear_fix:after {
       content: '.';
       display: block;
@@ -118,10 +122,10 @@
       border-right-color: #CBCBCB;
     }*/
 
-    .fl {
+    .fl_l, .fl {
       float: left;
     }
-    .fr {
+    .fl_r, .fr {
       float: right;
     }
 
@@ -197,6 +201,100 @@
     }
     .radiobtn.on.radiobtn_hover div {
       background-position: 0px -42px;
+    }
+
+    .im_sticker_bl_mimg {
+      width: 96px;
+      text-align: center;
+      padding-right: 4px;
+    }
+    .im_sticker_bl {
+      width: 240px;
+      height: 143px;
+      padding: 10px 10px 8px 10px;
+      display: block;
+    }
+    .im_sticker_bl:hover {
+      text-decoration: none;
+    }
+    .im_sticker_bl_imgs {
+      width: 140px;
+      padding-top: 1px;
+    }
+    .im_sticker_bl_simg {
+      text-align: center;
+      width: 42px;
+      height: 42px;
+      padding: 2px;
+    }
+    .im_sticker_bl_info {
+      text-align: left;
+      padding: 6px 4px 4px;
+    }
+    .im_sticker_bl_name {
+      font-weight: bold;
+      font-size: 13px;
+      color: #45688E;
+      padding: 1px 0px 2px 0px;
+    }
+    .im_sticker_bl_desc {
+      color: #999;
+    }
+    .im_sticker_bl:hover .im_sticker_bl_desc {
+      color: #8795A5;
+    }
+    .im_sticker_bl_btn {
+      padding-top: 5px;
+    }
+    .im_sticker_act {
+      background: #e8ebed;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+      color: #8e949c;
+      padding: 6px 8px 7px;
+      margin-top: 3px;
+      display: inline-block;
+      *display: inline;
+      zoom: 1;
+    }
+    .im_sticker_bl:hover .im_sticker_act {
+      background: #D5DBDF;
+    }
+    .im_sticker_act_blue, .im_stickerpack_info .im_sticker_act_blue {
+      background: #6689b7;
+      color: #FFFFFF;
+      cursor: pointer;
+    }
+    .im_sticker_bl:hover .im_sticker_act_blue {
+      background: #6689b7;
+    }
+    .im_sticker_bl .im_sticker_act_blue:hover,
+    .im_sticker_act_blue:hover {
+      background: #7393BD;
+    }
+    .im_sticker_bl .im_sticker_act_blue:active,
+    .im_sticker_act_blue:active {
+      padding-top: 7px;
+      padding-bottom: 6px;
+      background: #6A86AC;
+    }
+    .im_stickers_act_done {
+      width: 15px;
+      height: 12px;
+      margin: 2px 0px 1px 5px;
+      background-position: -116px 0px;
+      display: inline-block;
+      *display: inline;
+      zoom: 1;
+    }
+    .im_stickers_act_short {
+      padding-left: 7px;
+      padding-right: 7px;
+      margin-right: 10px;
+    }
+    .im_stickers_act_short .im_stickers_act_done {
+      margin-left: 0px;
     }
   </style>
 </head>
