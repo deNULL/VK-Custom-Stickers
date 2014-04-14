@@ -14,30 +14,36 @@ chrome.runtime.onInstalled.addListener(function(details) {
 var albumsId = {};
 var photosId = {};
 chrome.webRequest.onCompleted.addListener(function(details) {
-  api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228 }), photos: API.photos.getAll({ owner_id: -69762228, count: 200 }) };' }, function(res) {
-    var stickersPhotos = {};
-    var stickersAlbums = [];
+  chrome.tabs.get(details.tabId, function(tab) {
+    var https = (tab.url.indexOf('https:') == 0) ? 1 : 0;
+    api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228, https: ' + https + ' }), photos: API.photos.getAll({ owner_id: -69762228, count: 200, https: ' + https + ' }) };' }, function(res) {
+      var stickersPhotos = {};
+      var stickersAlbums = [];
 
-    var albums = res.response.albums.items.reverse();
-    for (var i = 0; i < albums.length; i++) {
-      if (!albums[i].size) continue;
-      albumsId[albums[i].id] = albums[i];
-      stickersPhotos[albums[i].id] = { stickers: [] };
-      stickersAlbums.push([albums[i].id, 1]);
-    }
-    var photos = res.response.photos.items.reverse();
-    for (var i = 0; i < photos.length; i++) {
-      photosId[photos[i].id] = photos[i];
-      stickersPhotos[photos[i].album_id].stickers.push([photos[i].id, 256]);
-    }
+      var albums = res.response.albums.items.reverse();
+      for (var i = 0; i < albums.length; i++) {
+        if (!albums[i].size) continue;
+        albumsId[albums[i].id] = albums[i];
+        stickersPhotos[albums[i].id] = { stickers: [] };
+        stickersAlbums.push([albums[i].id, 1]);
+      }
+      var photos = res.response.photos.items.reverse();
+      for (var i = 0; i < photos.length; i++) {
+        photosId[photos[i].id] = photos[i];
+        stickersPhotos[photos[i].album_id].stickers.push([photos[i].id, 256]);
+      }
 
-    chrome.tabs.executeScript(details.tabId, {
-      code: "var e = document.createElement('script');e.src = chrome.extension.getURL('inject.js');e.onload=function(){window.postMessage(" + JSON.stringify({
-        type: 'vkCustomStickers',
-        photos: stickersPhotos,
-        albums: stickersAlbums,
-        opts: opts
-      }) + ", '*');};document.body.appendChild(e);"
+      chrome.tabs.executeScript(details.tabId, {
+        code: "var e = document.createElement('script');e.src = chrome.extension.getURL('inject.js');e.onload=function(){window.postMessage(" + JSON.stringify({
+          type: 'vkCustomStickers',
+          photos: stickersPhotos,
+          albums: stickersAlbums,
+          opts: opts
+        }) + ", '*');};document.body.appendChild(e);"
+      });
+      chrome.tabs.insertCSS(details.tabId, {
+        file: 'inject.css'
+      })
     });
   });
 },
@@ -56,7 +62,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     var size = m[2];
 
     if (albumsId[album_id] && photosId[albumsId[album_id].thumb_id]) {
-      return { redirectUrl: photosId[albumsId[album_id].thumb_id].photo_75.replace('http:', '') };
+      return { redirectUrl: photosId[albumsId[album_id].thumb_id].photo_75 };
     }
   } else
   if (m = details.url.match(/stickers\/(\d+)\/(\d+)\./)) { // Sticker
