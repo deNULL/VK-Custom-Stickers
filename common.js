@@ -11,7 +11,7 @@ function geByClass1(c, n) {
 var opts = {};
 function loadOptions(defaults) {
   for (var key in defaults) {
-    opts[key] = defaults[key];
+    opts[key] = opts[key] || defaults[key];
   }
   for (var key in localStorage) {
     try {
