@@ -1,64 +1,55 @@
-kango.addMessageListener('updateOptions', function(event) {
-  saveOptions(event.data.update, true);
-});
-
-kango.addMessageListener('getOptions', function(event) {
-    event.source.dispatchMessage('setOptions', opts);
-});
-
-var albumsId = {},
-    photosId = {};
+var PUBLIC_ID = 69762228;
 
 kango.browser.addEventListener(kango.browser.event.DOCUMENT_COMPLETE, function(event) {
   var albums = opts.albums,
-      photoRequests = [];
+      photoRequests = [],
+      albumRequest;
 
   if (!/https?:\/\/vk.com/.test(event.url)) {
     return;
   }
 
   for (var i = 0; i < albums.length; i++) {
-    photoRequests.push('API.photos.get({ owner_id: -69762228, album_id: ' + albums[i] + '})');
+    photoRequests.push(apiRequestString('photos.get', { owner_id: -PUBLIC_ID, album_id: albums[i]}));
   }
 
-  api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228 }), photos: [' + photoRequests.join(',') + '] };' }, function(res) {
+  albumRequest = apiRequestString('photos.getAlbums', {owner_id: -PUBLIC_ID, album_ids: albums});
+
+  api('execute', { code: 'return { albums: ' + albumRequest + ', photos: [' + photoRequests.join(',') + '] };' }, function(res) {
     var stickersPhotos = {},
         stickersAlbums = [],
         albums = res.response.albums.items,
-        photos = [],
+        photos = _.flatten(_.pluck(res.response.photos, 'items')).reverse(),
         css = [],
+        photosById = _.indexBy(photos, 'id'),
         i;
 
-    for (i = 0; i < res.response.photos.length; i++) {
-      photos = photos.concat(res.response.photos[i].items);
-    }
-    photos = photos.reverse();
-
-    for (i = 0; i < photos.length; i++) {
-      photosId[photos[i].id] = photos[i];
-    }
-
-    for (i = 0; i < albums.length; i++) {
-      if (!albums[i].size) continue;
-      albumsId[albums[i].id] = albums[i];
-      stickersPhotos[albums[i].id] = { stickers: [] };
-      if (photosId[albums[i].thumb_id]) {
-        stickersAlbums.push([albums[i].id, 1, photosId[albums[i].thumb_id].photo_75]);
+    _.each(albums, function (album) {
+      if (!album.size) return;
+      stickersPhotos[album.id] = [];
+      if (photosById[album.thumb_id]) {
+        stickersAlbums.push({
+          id: album.id,
+          img: photosById[album.thumb_id].photo_75
+        });
       }
-    }
+    });
 
-    for (i = 0; i < photos.length; i++) {
-      photosId[photos[i].id] = photos[i];
+    _.each(photos, function (photo) {
+      var album_id = photo.album_id;
 
-      if (photos[i].height == 22) {
-        css.push('.emoji_tab_' + photos[i].album_id +' img {display:none !important;}');
-        css.push('.emoji_tab_' + photos[i].album_id +':before {content:"";display:block;width:22px;height:22px;background:url(' + photos[i].photo_75 + ');background-repeat:no-repeat;}');
-        css.push('.emoji_tab_' + photos[i].album_id +':hover:before {background-position-x:-22px;}');
-        css.push('.emoji_tab_' + photos[i].album_id +'.emoji_tab_sel:before {background-position-x:-44px;}');
+      if (photo.height === 22) {
+        css.push('.emoji_tab_' + album_id +' img {display:none !important;}');
+        css.push('.emoji_tab_' + album_id +':before {content:"";display:block;width:22px;height:22px;background:url(' + photo.photo_75 + ');background-repeat:no-repeat;}');
+        css.push('.emoji_tab_' + album_id +':hover:before {background-position-x:-22px;}');
+        css.push('.emoji_tab_' + album_id +'.emoji_tab_sel:before {background-position-x:-44px;}');
       } else {
-        stickersPhotos[photos[i].album_id].stickers.push([photos[i].id, 256, photos[i].photo_75]);
+        stickersPhotos[album_id].push({
+          id: photo.id, 
+          img: photo.photo_75
+        });
       }
-    }
+    });
 
     event.target.dispatchMessage('vkCustomStickers', {
       photos: stickersPhotos,
@@ -70,4 +61,12 @@ kango.browser.addEventListener(kango.browser.event.DOCUMENT_COMPLETE, function(e
       event.target.dispatchMessage('injectCss', css.join(' '));      
     }
   });
+});
+
+kango.addMessageListener('updateOptions', function(event) {
+  saveOptions(event.data.update, true);
+});
+
+kango.addMessageListener('getOptions', function(event) {
+    event.source.dispatchMessage('setOptions', opts);
 });

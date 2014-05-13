@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <script type="text/javascript" src="kango-ui/kango_api.js"></script>
+
+  <script src='js/md5.js'></script>
+  <script src='js/common.js'></script>
+  <title>VK Custom Stickers</title>
+  <link rel="stylesheet" type="text/css" href="res/options.css">
+</head>
+<body>
+  <div class='content'>
+    <img class='fr' style='margin-top: 12px' src='icons/icon48.png'/>
+    <h2>Настройки расширения «VK Custom Stickers»</h2>
+    <div id='block_auth'>
+      <p>Для начала работы с расширением необходимо разрешить ему доступ на сайте ВКонтакте:</p>
+      <div style='text-align: center'><div id='button_auth' class='button_blue'><button>Разрешить доступ</button></div></div>
+    </div>
+    <div id='block_logged' style='display: none'>
+      <p>Вы авторизованы как <a id='link_user' href='http://vk.com' target='_blank'></a> (<a id='link_logout' href='#'>выйти</a>)</p>
+    </div>
+    <div id='block_settings' style='display: none'>
+      <p>Отображать следующие наборы <a href='http://vk.com/albums-69762228' target='_blank'>дополнительных стикеров</a>:</p>
+      <div id='list_albums'>Загрузка...</div>
+      <div style='text-align: center; margin-top: 16px'><div id='button_close' class='button_blue'><button>Закрыть</button></div></div>
+    </div>
+  </div>
+<script src='js/options.js'></script>
+</body>
+</html>

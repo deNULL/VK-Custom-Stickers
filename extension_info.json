@@ -21,7 +21,7 @@
         ]
     }, 
     "homepage_url": "http://vk.com/custom.stickers", 
-    "version": "1.6.2", 
+    "version": "1.6.3", 
     "options_page": "options.html", 
     "update_path_url": "https://kuzya.org/extensions/", 
     "content_security_policy": "script-src 'self' https://login.vk.com https://vk.com; object-src 'self'", 

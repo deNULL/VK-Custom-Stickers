@@ -54,8 +54,8 @@ stManager.add(['emoji.js'], function() {
     var albums = customStickers.albums;
 
     for (var i = 0; i < albums.length; i++) {
-      if (customStickers.opts.albums.indexOf(customStickers.albums[i][0]) !== -1) {
-        extra.push(customStickers.albums[i]);
+      if (customStickers.opts.albums.indexOf(albums[i].id) !== -1) {
+        extra.push([albums[i].id, 1]);
       }
     }
     args[0] = (args[0] || []).concat(extra);
@@ -67,8 +67,8 @@ stManager.add(['emoji.js'], function() {
         var src = null;
         albumId = parseInt(albumId);
         for (var i = 0; i < albums.length; i++) {
-          if (albums[i][0] === albumId) {
-            src = albums[i][2];
+          if (albums[i].id === albumId) {
+            src = albums[i].img;
             break;
           }
         }
@@ -122,25 +122,33 @@ stManager.add(['emoji.js'], function() {
         selId = args[1],
         optId = args[2],
         opts = Emoji.opts[optId];
+    
+    var cont = geByClass1('emoji_scroll', Emoji.opts[args[2]].tt);
     if (!Emoji.stickers || !customStickers || !customStickers.photos[selId]) {
       cont.innerHTML = _tabSwitch.apply(this, args);
       opts.emojiScroll.scrollTop();
       opts.emojiScroll.update();
     }
-    var ss = customStickers.photos[selId].stickers;
+    var stickers = customStickers.photos[selId];
 
-    Emoji.stickers[selId] = customStickers.photos[selId];
+    if (stickers) {
+      Emoji.stickers[selId] = {stickers: []};
+      for (var i = 0; i < stickers.length; i++) {
+        Emoji.stickers[selId].stickers.push([stickers[i].id, 256]);
+      }
+    }
 
     var html = _tabSwitch.apply(this, args);
 
-    var cont = geByClass1('emoji_scroll', Emoji.opts[args[2]].tt);
+    if (!html) return;
+
     cont.innerHTML = html.replace(/src="\/images\/stickers\/(\d+)\/[^"]*"/g,
       function(_, photoId) {
         var src = '';
         photoId = parseInt(photoId);
-        for (var i = 0; i < ss.length; i++) {
-          if (ss[i][0] === photoId) {
-            src = ss[i][2];
+        for (var i = 0; i < stickers.length; i++) {
+          if (stickers[i].id === photoId) {
+            src = stickers[i].img;
             break;
           }
         }

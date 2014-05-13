@@ -23,7 +23,7 @@
         "16": "icons/button.png"
     }, 
     "homepage_url": "http://vk.com/custom.stickers", 
-    "version": "1.6.2", 
+    "version": "1.6.3", 
     "options_page": "options.html", 
     "background": {
         "page": "background.html"
