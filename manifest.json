@@ -1,6 +1,6 @@
 {
   "name": "VK Custom Stickers",
-  "version": "1.4",
+  "version": "1.7",
   "icons": {
     "16": "icon-16.png",
     "48": "icon-48.png",
@@ -9,6 +9,7 @@
   "manifest_version": 2,
   "description": "Позволяет добавить собственные наборы изображений в качестве дополнения к стандартным стикерам ВКонтакте.",
   "permissions": [
+    "notifications",
     "webRequest",
     "webRequestBlocking",
     "tabs",

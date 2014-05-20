@@ -4,16 +4,36 @@ function checkAccessToken() {
   ge('block_settings').style.display = opts.accessToken ? 'block' : 'none';
 
   if (opts.accessToken) {
-    
+
     api('users.get', {}, function(data) {
+      if (data.error) {
+        saveOptions({ accessToken: false });
+        checkAccessToken();
+        return true;
+      }
+
       saveOptions({ userID: data.response[0].id, firstName: data.response[0].first_name, lastName: data.response[0].last_name });
 
       ge('link_user').href = 'http://vk.com/id' + opts.userID;
       ge('link_user').innerHTML = opts.firstName + ' ' + opts.lastName;
     });
-    api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228 }), photos: API.photos.getAll({ owner_id: -69762228, count: 200 }) };' }, function(data) {
+    var photoRequests = [];
+    for (var i = 0; i < 20; i++) {
+      photoRequests.push('API.photos.getAll({ owner_id: -69762228, offset: ' + (i * 200) + ', count: 200, no_service_albums: 1 })');
+    }
+    api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228 }), photos: [' + photoRequests.join(',') + '] };' }, function(data) {
+      if (data.error) {
+        saveOptions({ accessToken: false });
+        checkAccessToken();
+        return true;
+      }
+
       var albums = data.response.albums.items.reverse();
-      var photos = data.response.photos.items.reverse();
+      var photos = [];
+      for (var i = 0; i < data.response.photos.length; i++) {
+        photos = photos.concat(data.response.photos[i].items);
+      }
+      photos = photos.reverse();
       var html = [];
       var defs = {};
       var photosByAlbum = {};
@@ -24,6 +44,7 @@ function checkAccessToken() {
         photosByAlbum[albums[i].id] = [];
       }
       for (var i = 0; i < photos.length; i++) {
+        console.log(photos[i].album_id, photos[i], photosByAlbum[photos[i].album_id]);
         photosByAlbum[photos[i].album_id].push(photos[i]);
         photosById[photos[i].id] = photos[i];
       }
@@ -72,46 +93,6 @@ function checkAccessToken() {
       }
     });
   }
-}
-
-function performAuth() {
-  var redirect_uri = 'https://oauth.vk.com/blank.html';
-  var redirect_regex = /^https:\/\/oauth.vk.com\/blank.html#(.*)$/i;
-  chrome.windows.getCurrent(function(wnd) {
-    chrome.tabs.getCurrent(function(tab) {
-      chrome.windows.create({
-        url: 'https://oauth.vk.com/authorize?client_id=4301512&scope=messages,photos,offline,nohttps&redirect_uri=' + redirect_uri + '&display=popup&v=5.7&response_type=token',
-        tabId: tab.id,
-        focused: true,
-        type: 'popup',
-        left: wnd.left + (wnd.width - 700) >> 1,
-        top: wnd.top + (wnd.height - 500) >> 1,
-        width: 700,
-        height: 500,
-      }, function(popup) {
-        chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-          var match;
-          if (tab.windowId == popup.id && changeInfo.url && (match = changeInfo.url.match(redirect_regex))) {
-            chrome.windows.remove(popup.id);
-
-            var params = match[1].split('&');
-            var map = {};
-            for (var i = 0; i < params.length; i++) {
-              var kv = params[i].split('=');
-              map[kv[0]] = kv[1];
-            }
-
-
-            if (map['access_token']) {
-              saveOptions({ accessToken: map['access_token'], secret: map['secret'] });
-              console.log('access_token: ', map['access_token'], 'secret:', map['secret']);
-              checkAccessToken();
-            }
-          }
-        });
-      });
-    });
-  });
 }
 
 function radiobtn(c, onclick) {

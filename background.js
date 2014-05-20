@@ -19,7 +19,15 @@ chrome.webRequest.onCompleted.addListener(function(details) {
   });
   chrome.tabs.get(details.tabId, function(tab) {
     var https = (tab.url.indexOf('https:') == 0) ? 1 : 0;
-    api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228, https: ' + https + ' }), photos: API.photos.getAll({ owner_id: -69762228, count: 200, https: ' + https + ' }) };' }, function(res) {
+    var photoRequests = [];
+    for (var i = 0; i < 20; i++) {
+      photoRequests.push('API.photos.getAll({ owner_id: -69762228, offset: ' + (i * 200) + ', count: 200, no_service_albums: 1, https: ' + https + ' })');
+    }
+    api('execute', { code: 'return { albums: API.photos.getAlbums({ owner_id: -69762228, https: ' + https + ' }), photos: [' + photoRequests.join(',') + '] };', https: https }, function(res) {
+      if (res.error) {
+        return;
+      }
+
       var stickersPhotos = {};
       var stickersAlbums = [];
 
@@ -30,7 +38,11 @@ chrome.webRequest.onCompleted.addListener(function(details) {
         stickersPhotos[albums[i].id] = { stickers: [] };
         stickersAlbums.push([albums[i].id, 1]);
       }
-      var photos = res.response.photos.items.reverse();
+      var photos = [];
+      for (var i = 0; i < res.response.photos.length; i++) {
+        photos = photos.concat(res.response.photos[i].items);
+      }
+      photos = photos.reverse();
       for (var i = 0; i < photos.length; i++) {
         photosId[photos[i].id] = photos[i];
         stickersPhotos[photos[i].album_id].stickers.push([photos[i].id, 256]);
