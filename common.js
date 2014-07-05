@@ -97,7 +97,7 @@ function api(method, params, callback) {
       var res = (typeof this.response == 'string') ? JSON.parse(this.response) : this.response;
       if (!callback(res) && res.error) {
         if ((res.error.error_code == 10) || (res.error.error_code == 13) || (res.error.error_code == 5)) {
-          var notification = window.webkitNotifications.createNotification(
+          var notification = window.Notifications.createNotification(
             'icon-48.png',
             'Расширению «VK Custom Stickers» требуется авторизация',
             'Для использования дополнительных стикеров нужно разрешить доступ. Щелкните здесь чтобы авторизоваться.'
@@ -107,7 +107,7 @@ function api(method, params, callback) {
             notification.close();
           }
         } else {
-          var notification = window.webkitNotifications.createNotification(
+          var notification = window.Notifications.createNotification(
             'icon-48.png',
             'Ошибка ' + res.error.error_code + ' при выполнении запроса «' + method + '»',
             'Произошла ошибка «' + res.error.error_msg + ' при обращении к API ВКонтакте. Сообщите разработчику.'
