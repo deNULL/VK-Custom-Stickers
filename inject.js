@@ -52,23 +52,13 @@
     }
   }, false);
 
-  Emoji.ttClick = inject(Emoji.ttClick, function(ret, optId, obj, needHide, needShow, ev) {
-    var opts = Emoji.opts[optId];
-    if (!opts) {
-      return ret;
-    }
-
-    var topShift = getSize(opts.tt)[1] + 11;
-    var toParams = { marginTop: Emoji.shown ? -topShift : -(topShift+10) };
-    setTimeout(setStyle.pbind(opts.tt, toParams), 10);
-    return ret;
-  });
-
   Emoji.getTabsCode = inject(Emoji.getTabsCode, function(args, func) {
     var extra = [];
-    for (var i = 0; i < customStickers.albums.length; i++) {
-      if (customStickers.opts['album' + customStickers.albums[i][0]]) {
-        extra.push(customStickers.albums[i]);
+    if (!args[0] || args[0].length != 1 || args[0][0][0] != 0) {
+      for (var i = 0; i < customStickers.albums.length; i++) {
+        if (customStickers.opts['album' + customStickers.albums[i][0]]) {
+          extra.push(customStickers.albums[i]);
+        }
       }
     }
     args[0] = (args[0] || []).concat(extra);

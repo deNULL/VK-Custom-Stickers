@@ -14,9 +14,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
 var albumsId = {};
 var photosId = {};
 chrome.webRequest.onCompleted.addListener(function(details) {
-  chrome.tabs.insertCSS(details.tabId, {
-    code: '.emoji_tabs{height:auto !important;} .emoji_tt_wrap{height:auto !important;} .emoji_pointer{bottom:-8px !important;}'
-  });
   chrome.tabs.get(details.tabId, function(tab) {
     var https = (tab.url.indexOf('https:') == 0) ? 1 : 0;
     var photoRequests = [];
@@ -43,11 +40,24 @@ chrome.webRequest.onCompleted.addListener(function(details) {
         photos = photos.concat(res.response.photos[i].items);
       }
       photos = photos.reverse();
+      var css = [];
       for (var i = 0; i < photos.length; i++) {
+        var album_id = photos[i].album_id;
         photosId[photos[i].id] = photos[i];
-        stickersPhotos[photos[i].album_id].stickers.push([photos[i].id, 256]);
+
+        if (photos[i].height === 22) {
+          css.push('.emoji_tab_' + album_id +' img {display:none !important;}');
+          css.push('.emoji_tab_' + album_id +':before {content:"";display:inline-block;width:22px;height:22px;background:url(' + photos[i].photo_75 + ');background-repeat:no-repeat;}');
+          css.push('.emoji_tab_' + album_id +':hover:before {background-position-x:-22px;}');
+          css.push('.emoji_tab_' + album_id +'.emoji_tab_sel:before {background-position-x:-44px;}');
+        } else {
+          stickersPhotos[photos[i].album_id].stickers.push([photos[i].id, 256]);
+        }
       }
 
+      chrome.tabs.insertCSS(details.tabId, {
+        code: css.join(' ')
+      });
       chrome.tabs.executeScript(details.tabId, {
         code: "var e = document.createElement('script');e.src = chrome.extension.getURL('inject.js');e.onload=function(){window.postMessage(" + JSON.stringify({
           type: 'vkCustomStickers',
