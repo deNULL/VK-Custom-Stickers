@@ -97,20 +97,22 @@ function api(method, params, callback) {
       var res = (typeof this.response == 'string') ? JSON.parse(this.response) : this.response;
       if (!callback(res) && res.error) {
         if ((res.error.error_code == 10) || (res.error.error_code == 13) || (res.error.error_code == 5)) {
-          var notification = window.Notifications.createNotification(
-            'icon-48.png',
-            'Расширению «VK Custom Stickers» требуется авторизация',
-            'Для использования дополнительных стикеров нужно разрешить доступ. Щелкните здесь чтобы авторизоваться.'
+          var notification = new Notification(
+            'Расширению «VK Custom Stickers» требуется авторизация', {
+              icon: 'icon-48.png',
+              body: 'Для использования дополнительных стикеров нужно разрешить доступ. Щелкните здесь чтобы авторизоваться.'
+            }
           );
           notification.onclick = function() {
             performAuth();
             notification.close();
           }
         } else {
-          var notification = window.Notifications.createNotification(
-            'icon-48.png',
-            'Ошибка ' + res.error.error_code + ' при выполнении запроса «' + method + '»',
-            'Произошла ошибка «' + res.error.error_msg + ' при обращении к API ВКонтакте. Сообщите разработчику.'
+          var notification = new Notification(
+            'Ошибка ' + res.error.error_code + ' при выполнении запроса «' + method + '»', {
+              icon: 'icon-48.png',
+              body: 'Произошла ошибка «' + res.error.error_msg + ' при обращении к API ВКонтакте. Сообщите разработчику.'
+            }
           );
           notification.onclick = function () {
             window.open('http://vk.com/write189814');
@@ -118,9 +120,8 @@ function api(method, params, callback) {
           }
         }
 
-        notification.show();
         setTimeout(function() {
-          notification.cancel();
+          notification.close();
         }, 5000);
       }
     }
