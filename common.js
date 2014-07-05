@@ -96,7 +96,7 @@ function api(method, params, callback) {
     if (this.readyState == 4 && this.status == 200) {
       var res = (typeof this.response == 'string') ? JSON.parse(this.response) : this.response;
       if (!callback(res) && res.error) {
-        if ((res.error.error_code == 10) || (res.error.error_code == 13)) {
+        if ((res.error.error_code == 10) || (res.error.error_code == 13) || (res.error.error_code == 5)) {
           var notification = window.webkitNotifications.createNotification(
             'icon-48.png',
             'Расширению «VK Custom Stickers» требуется авторизация',
